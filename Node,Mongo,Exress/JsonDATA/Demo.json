@@ -1,0 +1,18 @@
+[
+    {
+        "name":"Arfan Khan",
+        "roll":23432,
+        "imgURL": "path of img",
+        "address":{
+            "phone":43423,
+            "address_real":"72/1 sk das bangladesh"
+        },
+        "othersInfo":[
+            "name",
+            "dhaka",
+            {
+                "bangladesh":"dhaka"
+            }
+        ]
+    }
+]

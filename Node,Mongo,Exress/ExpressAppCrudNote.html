@@ -1,0 +1,404 @@
+<script>
+    //post app = theme, collection,authorization,default post, 
+    /**
+     * !NODe mongo crud steps by jhankar mahbub : 
+     * 1. Create a node server with 5 steps
+     * 1.1. create folder
+     * 1.2. npm init
+     * 1.3. npm i express cors mongodb
+     * 1.4. script-dev: nodemon index.js
+     * 1.5. create index.js
+     * 1.6. use 5 steps to create a node server
+     * 
+     * -------------------
+     * !Create Atlas Account
+     * -------------------
+     * 1. sign up. google access
+     * 2. create cluster
+     * 3. Create user dbUser and password
+     * 4. Network Access --> ip address: allow all 
+     * 5. database > Connect > code copy paste in index.js
+     * ---------------------
+     * !CRUD Operation
+     * -------------------
+     * 1. node mongodb CRUD > Fundamentals
+     * 2. create async run function
+     * ---------------------------------------------
+     * !Integrate sending data from client to server
+     * ----------------------------------------------
+     * 1. Client side: create form
+     * 2. on submit get form data and create user object
+     * 3. on Server: Create user POST method to receive data on the backend 
+     * 4. on client side: set fetch with POST, headers, body
+     * 5. Make sure you return a json from the POST API
+     * ---------------------------
+     * !LOAD Data to the client side
+     * -------------------------------
+     * 1. create get API on the server
+     * 2. create a query object
+     * 3. collection.find (query)
+     * 4. cursor.toArray()
+     * 5. return the result
+     * 6. from client useEffect and display like you have done before
+     * ---------------------------
+     * DELETE
+     * ---------------------------
+    */
+
+    /**
+     * !How to Initialize A package.json and make an express app ----------------
+     * 1)make a folder and in your terminal cmd type [yarn init -y / npm init -y / npm init = for Q]
+     * 2)edit package.json folder and in script object add your main file location on node and nodemon 
+     * ( "start":"node index.js" | "start-dev":"nodemon index.js") make sure nodemon has installed 
+     *3)make index.js file for run, and type node index.js or nodemon index.js or yarn start || npm run start-dev 
+     *4)install require packages (mongodb,express, cors etc)
+     *5)type code in index.js file and see out by running cmd command
+     *!create server file for api making, 2nd steps,
+     *create a folder for server
+     *npm init for making package.json file,
+     *yarn install for making node mudule , 
+     *package.json file edit for server start,  
+     *yarn install express mongodb cors etc, 
+     *create a file name index.js , 
+     *type code in index.js
+     *run yarn start in terminal, 
+    */
+
+    /**
+    *!how to connect mongo db? after making initial server setup : mongo db connect for using database
+    *)require mongodb with MongoClient and ServerApiVersion
+    *)make client by new MongoClient(uri,{}) ;
+    *)uri will find form mongo db ,
+    *)type asyc run function and make mongodb connection with await function
+    *)after mongodb connected make database table connection with await function,
+    
+    *!how to use this table or database,
+    *)userConnection.insert(), userConnection.update(); userConnection.delete(),userConnection.find()
+    *)find method is very important ,we can find by query, or if empty than all the data will be fetch,
+    *)in mongoDB crud method does not accept any single data only {} data can be accepted,
+    */
+
+    /** 
+     * !How to make mongodb database and connect it :
+     *1)sign up in mongodb 
+     *2)create new project in tab in needed, 
+     *3)create userName and password for accessing all database data,
+     *4)give access to 0.0.0.0 port so that server can access form anywhere. 
+     *5)make database in database tab, 
+     *6)get setting form database tag connected button,
+     *7)add connection in your website by async run function
+     *8)create database and table collection with demo data inserted. 
+     *9)finally use this by express app. 
+     *)you can find fake data form (jsonplaceholder,mealdb etc free api site)
+    */
+
+    /**
+     * !How to use Express app and mongodb database connetion crud methods:
+     * 1)initialize express app by const express = require('express')
+     * 2)require others things like (mongodb,cors,)
+     * 3)use middleware for posting data successfully and client site use 
+     * 4)port add with env file,
+     * 5)app.listen add and make a simple get req to check connection 
+     * !How to connect mongoDB : 
+     * 1)paste the connection code form mongoDB connection Tab,
+     * 2)add userName and password in env file, 
+     * 3)make async fun to make Connection 
+     * 4)make connection by await client.connect();
+     * 5)connect with database by userCollection = client.db('name').collection('name') // if there is no database then it will create automatically
+     * 6)make api by userCollection: how to make api the code is given below : 
+     * 
+     * !Crud Operation 
+     *1)CONNECT DATABASE WITH URI,CLIENT,
+     *2)AFTER CONNECTING TYPE ASYNC FUNCTION AND WORK CRUD 
+     *3)GET WILL SIMPLE AND TO ARRAY CONVERT,
+     *4)POST WILL INSERTonE AND RETURN ALL DATA,
+     *5)PUT WILL UPDATE ONE AND RETURN ALL DATA,
+     *6)DELETE WILL DELETEoNE AND RETURN deletedCount number,
+     *)short steps : import express, cors, port , app.listen(port,function), app.get('/',function),app.post('/',function), 
+
+     *
+     */
+
+    const express = require('express');
+    const cors = require('cors');
+    const { MongoClient, ServerApiVersion } = require('mongodb');
+    const ObjectId = require('mongodb').ObjectId;
+    const res = require('express/lib/response');
+    const jwt = require('jsonwebtoken');
+    require('dotenv').config() //instal and use by this 
+    const port = process.env.PORT || 5000;
+
+    //APP INITIALIZE
+    const app = express();
+
+    // USING MIDDLEWARE FOR CLIENT AND POST DATA DONE successfully
+    app.use(cors());
+    //for post response getting 
+    app.use(express.json());
+
+    //DATABASE CONNECTION URL SETUP
+    const uri = `mongodb+srv://${USER_NAME}:${PASSWORD}@cluster0.dzplv.mongodb.net/phone-store?retryWrites=true&w=majority`;
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+    //ASYNC FUNCTION FOR DATABASE CRUD Operation
+    async function run() {
+
+        try {
+            // DATABASE CONNECTION  
+            await client.connect();
+            const yourCollection = client.db('db_name').collection('collection_name')
+            // console.log('database connected');
+
+            //GET REQUEST DONE link : www.localhost:5000/phones | /phones 
+            //get data with query for searching if need,
+            // you can find fake data form (jsonplaceholder,mealdb.restcountry etc free api site) as demo , use Imgbb , 
+            //you postman collection feature and set default route,
+            app.get('/phones', async (req, res) => {
+                const q = req.query; // if nothing on search than it will be an empty object
+                const result = yourCollection.find(q).toArray(); //find({_id:342}) for search 
+                res.send(result);
+            })
+            /* *
+             * !Json Data will be like this : 
+            {
+                "name":"oppo j7",
+                "brand":"oppo",
+                "ram":"4gb",
+                "rom":"64gb"
+            }
+              */
+
+            //POST REQUEST CODE link : www.localhost:5000/phones | /phones = same as get 
+            app.post('/phones', async (req, res) => {
+                //DATA collecting form input form 
+                const postData = req.body; //data will be here from client
+                console.log(postData);
+
+                //we can add data by using conditions 
+                if (userAccess === true) {
+                    result = await yourCollection.insertOne({ name: 'arfan khan' })
+                    res.send({ success: 'data posted' })
+                } else {
+                    res.send({ success: "fail to post" })
+                }
+
+                const result = await yourCollection.insertOne(phoneData); //phoneData {name:"iphone",model:'234'}
+
+                //response will get as insertedId
+                res.send({ success: 'data posted', result });
+            })
+
+            //DELETE DATA FROM DATABASE link : www.localhost:5000/phones/2342 | /phones/34532
+            app.delete('/phones/:id', async (req, res) => {
+                //only id have to parse by ObjectId func . 
+                const id = { _id: ObjectId(req.params.id) } //req.params.id / email or anything can filter for delete,
+
+                const result = await yourCollection.deleteOne(id); //{_id:32423}
+
+                //response e object pabo {acknowlege:true,deletedCount:1};
+                res.send({ success: 'deleted data', result });
+            })
+
+            //UPDATE DATABASE DATA link : www.localhost:5000/phones/435 | /phones/3423
+            // 3 things need for update data = filterId, options, updateDoc ,
+            app.put('/phones/:id', async (req, res) => {
+                const id = { _id: ObjectId(req.params.id) };
+                const updatedData = req.body; //body will come by client input send 
+                console.log(id, updatedData);
+                const options = {
+                    upsert: true, //if data not find for updates than it will create a new one,
+                }
+                const updateDoc = {
+                    $set: {
+                        ...updatedData
+                    }
+                }
+                const result = await yourCollection.updateOne(id, updateDoc, options);
+
+                res.send(result);
+
+                //response result will be this if all done perfectly
+                //we can use conditioning update data,
+                /*  {
+                     "acknowledged": true,
+                     "modifiedCount": 1,
+                     "upsertedId": null,
+                     "upsertedCount": 0,
+                     "matchedCount": 1
+                 } */
+
+                //All Crud in one :
+                const resultGet = await yourCollection.find({ name: arfan }).toArray();
+                const resultPost = await yourCollection.insertOne({ name: 'arfan', phone: 2342 });
+                const resultDelete = await yourCollection.deleteOne({ _id: 3423 });
+                const resultUpdate = await yourCollection.updateOne(filter, updateDoc, options);
+
+            })
+
+        }
+        finally {
+            //console.log('finally blog data')
+        }
+
+    }
+    run().catch(console.dir) // calling the run function for using ,
+
+    //SIMPLE TEST GET REQUEST SEND 
+    app.get('/test', (req, res) => { //async no need for this 
+        // req.body,req.header,req,params,req,query, we can use for working purpose,
+        res.send('SIMPLE TEST GET REQUEST SEND SUCCESSFULLY');
+    })
+
+    //APP LISTENING 
+    app.listen(port, () => { //(5000,,callback)
+        console.log('app in running on 5000 port');
+    })
+
+</script>
+
+
+<script>
+
+    //basic api made with get, delete , search query  params
+
+    let users = [
+        {
+            id: 1,
+            name: 'Arfan khan',
+            phone: '34234224',
+        },
+        {
+            id: 2,
+            name: 'Fahim khan',
+            phone: '3234234224',
+        },
+        {
+            id: 3,
+            name: 'Adnan khan',
+            phone: '34dfa234224',
+        },
+    ]
+
+    //simple running code api 
+    app.get('/', (req, res) => {
+        res.send('server response send');
+    })
+
+    //req see carefully and analysis
+    app.get('/users', (req, res) => {
+        // http://localhost:4000/users?id=1
+
+        //Searching by id ,name with query property,
+        const searchName = req.query.name.toLowerCase();
+        const newUsers = users.filter((user) => user.name.toLowerCase().includes(searchName));
+        res.send(newUsers);
+    })
+
+    //find user with id params 
+    app.get('/users/:id', (req, res) => {
+
+        const id = req.params.id;
+        const findUser = users.find((user) => user.id == id);
+        console.log(findUser);
+        res.send(findUser);
+    })
+
+    //deleting users by params 
+    app.get('/users/delete/:id', (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const newUsers = users.filter(user => user.id != id);
+        console.log(newUsers);
+
+        res.send(newUsers);
+    })
+
+
+
+    app.listen(port, () => {
+        console.log('server running on 4000 page');
+    })
+
+
+    //fetch data by fetch api, 
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        body: JSON.stringify({
+            title: 'foo',
+            body: 'bar',
+            userId: 1,
+        }),
+        headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+        },
+    })
+        .then((response) => response.json())
+        .then((json) => console.log(json));
+
+
+    fetch('', {
+        method: 'post',
+        body: JSON.strigify(),
+        header: {
+            'content-type': 'application/json;',
+        }
+    })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => console.log(err))
+
+    fetch('url', {
+        method: 'POST',
+        header: {
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify(users),
+    })
+        .then(res => {
+            return res.json()
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+
+    /* 
+    posting data into database, 
+    ====================================
+    -)making an input box with name and phone number, 
+    -)making an variabe useState name users default value will be [];
+    -) after submiting the form of input this value will be store one by one into users state,
+    -)fetch post api diye users state pass kore dibo,
+    -)
+    
+    
+    */
+
+    fetch('url', {
+        method: 'POST',
+        header: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify(users),
+    })
+        .then((res) => {
+            return res.json()
+        })
+        .then((data) => {
+            console.log(data);
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+
+    app.post('url-post', (req, res) => {
+        console.log(req.body, 'post data will found here',);
+        //after post data found this will update the database ,
+
+        //   send response 
+        res.send(result);
+    })
+
+</script>
