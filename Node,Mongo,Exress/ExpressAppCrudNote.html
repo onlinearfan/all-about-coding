@@ -401,4 +401,206 @@
         res.send(result);
     })
 
+
+    //!jwt token using and email send  
+    //!----------------------------------
+
+    /**
+     * !jwt token using and email send 
+     * 1)function write verification token 
+     * 2)take 3 params req,res,next, 
+     * 3)get auth data from req and check empty 
+     * 4)if empty then send response with unauthorized,
+     * 5)if not empty then check the match data with auth token by using jwt.verify function,
+     * 6)if jwt verify function get any err then send unmatched token response ,
+     * 7)if match token then send to decode and next() func called 
+     */
+
+    //JWT authorization validate function
+    function verifyJWT(req, res, next) {
+        //header auth will come form client side, if client has a login information token 
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).send({ message: 'UnAuthorized access' }); //if token fail to get 
+        }
+        const token = authHeader.split(' ')[1]; //[barear dsafdaf2342342324] barea token string spliting
+
+        //verifying of token match with access token 
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+            if (err) {
+                return res.status(403).send({ message: 'Forbidden access' }) // if token not match then 403 error
+            }
+            //if error not find then decode will execute 
+            req.decoded = decoded; //user all data will be here 
+            next();
+        });
+    }
+
+
+    /**
+     * !Admin Status Verifying with jwt
+     * 1)three steps to make verify admin  ,
+     * -)get the decoded email ,
+     * -)find userData by email address, 
+     * -)check user.role === admin ;
+     * -)if true then next, if false then err send, 
+     */
+    //this function here because of userCollection data need to work with verification  
+    const verifyAdmin = async (req, res, next) => {
+        const requester = req.decoded.email; // if user login then here will come and get the email by verifyJWT func
+        //finding user information from userCollection to check admin status 
+        const requesterAccount = await userCollection.findOne({ email: requester });
+
+        //user.role ===admin then it will pass to next work or then it will give err 
+        if (requesterAccount.role === 'admin') {
+            next();
+        }
+        else {
+            res.status(403).send({ message: 'forbidden' });
+        }
+    }
+
+
+    // !-------------End --------------------
+    // !--------------------------------
+
+    /**
+     * !how to make an email service ;
+     * 1)make a email emailSenderOptions by api key , 
+     * 2)make emailClient by nodemailer.createTransport(sgTransport(emailSenderOptions)); 
+     * 3)make your function and there make an email object for data and after making email text 
+     * 4)email object property will be from , to, subject,html , 
+     * 5) emailClient.sendMail(emailObject,(err,info)=>{
+     *  if(err) console.log(err);
+     * if(info) console.log(info);
+     * })
+     */
+
+    //this is for email sender 
+    const emailSenderOptions = {
+        auth: {
+            api_key: process.env.EMAIL_SENDER_KEY
+        }
+    }
+
+
+    //This is for email sending with node mailer 
+    const emailClient = nodemailer.createTransport(sgTransport(emailSenderOptions));
+
+    function sendAppointmentEmail(booking) {
+        //sendAppointmentEmail function call with booking data , 
+        const { patient, patientName, treatment, date, slot } = booking;
+
+        var email = {
+            from: process.env.EMAIL_SENDER, //Our email will be here,
+            to: patient,
+            subject: `Your Appointment for ${treatment} is on ${date} at ${slot} is Confirmed`,
+            text: `Your Appointment for ${treatment} is on ${date} at ${slot} is Confirmed`,
+            html: `
+      <div>
+        <p> Hello ${patientName}, </p>
+        <h3>Your Appointment for ${treatment} is confirmed</h3>
+        <p>Looking forward to seeing you on ${date} at ${slot}.</p>
+        
+        <h3>Our Address</h3>
+        <p>Andor Killa Bandorban</p>
+        <p>Bangladesh</p>
+        <a href="https://web.programming-hero.com/">unsubscribe</a>
+      </div>
+    `
+        };
+
+        emailClient.sendMail(email, function (err, info) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                console.log('Message sent: ', info);
+            }
+        });
+
+    }
+
+    //Email sending for payment confirmation message sending 
+    function sendPaymentConfirmationEmail(booking) {
+        const { patient, patientName, treatment, date, slot } = booking;
+
+        var email = {
+            from: process.env.EMAIL_SENDER,
+            to: patient,
+            subject: `We have received your payment for ${treatment} is on ${date} at ${slot} is Confirmed`,
+            text: `Your payment for this Appointment ${treatment} is on ${date} at ${slot} is Confirmed`,
+            html: `
+      <div>
+        <p> Hello ${patientName}, </p>
+        <h3>Thank you for your payment . </h3>
+        <h3>We have received your payment</h3>
+        <p>Looking forward to seeing you on ${date} at ${slot}.</p>
+        <h3>Our Address</h3>
+        <p>Andor Killa Bandorban</p>
+        <p>Bangladesh</p>
+        <a href="https://web.programming-hero.com/">unsubscribe</a>
+      </div>
+    `
+        };
+
+        emailClient.sendMail(email, function (err, info) {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                console.log('Message sent: ', info);
+            }
+        });
+
+    }
+
+
+    //signup user user with store data in database, 
+    //user profile modification or updating or add new user 
+    app.put('/user/:email', async (req, res) => {
+        /**
+         * 1)after clicking the profile update button the value will come from the profile input box 
+         * 2)put data will run 
+         */
+        const email = req.params.email;
+        const user = req.body;
+        const filter = { email: email };
+        const options = { upsert: true }; //create new one if doesn't exist 
+        const updateDoc = {
+            $set: user,
+        };
+        const result = await userCollection.updateOne(filter, updateDoc, options);
+
+        //if user login or sing up then his email will come an store here ,
+        const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+        res.send({ result, token });
+    });
+
+
+    /**
+        * !how to make payment getway by stripe,
+        * 1)add stripe package in your projects,
+        * 2)get your submitted data for inserting into stripe website to get client_secret;
+        * 3)make paymentIntend = await stripe.paymentIntend.create({amount,currency,payment_methods});
+        * 4)get your client secret id from paymentIntend variable,
+        * 5)send the client secret to client view, 
+        */
+
+    app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+        const service = req.body;
+        const price = service.price;
+        const amount = price * 100;
+
+        //this will send to stripe data, and get a client secrete form there  
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: 'usd',
+            payment_method_types: ['card']
+        });
+        res.send({ clientSecret: paymentIntent.client_secret })
+    });
+
+// !------------------End----------------------------------
+
 </script>
