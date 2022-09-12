@@ -1,0 +1,134 @@
+*)manage inventory, blogs, user auth with node js and firebase user, 
+*)add tailwind css with jim equpment and jim training service = 
+*)sliders,animations, 
+*)react-query, and context api,
+*)react form , yup, 
+*)show confirm modal,s
+===================================
+
+Technologies, : Desing Part [tailwindCSS,react,react-query,context api,some sliders,blogs,Jim Tainers,] for dev [ node,mongoose,express,(api = blogs,managementinventory,service sell,)] paginations,loading show,
+
+========================================
+
+1)add home page with [
+	header[
+	navbar:(normallinks(home,dashboard,blogs,services,all inventories, dash board will (nest route,for admin and user auth,), and add login register, logout(image,name))): make with tailwindCss components,
+],
+
+	banner section [
+		slider hote pare, full backgroudn image of jim man and (ekta title and 2ta button rakhbo (buy inventory,buy services,)(button click will navigate routes));
+		text can be animated with farmer motions:
+	]
+	inventory jim equipment items[
+		6 products, and see more btn,
+		hakla animation dite pari,
+		product will come with (title,description,price,inventory stock,)
+	]
+	footer[
+		logo with bottom paragraph, 2row links and last e subscribe form,
+		and niche copyright text show, footer bg color dibo,
+	]
+]
+
+2)extra section in home page [
+	blogs[
+		ekta blogs page and single blogs and home page e 3ta limit show krbo,
+
+		hover effect dibo, animation hakla,
+		blogItem[img,title,desc,author,reading time, like deslike with count number],
+
+	],
+	jim trainer [
+		jim trainer der chobi with exprerians,
+		[image,name,role,expreriance],
+
+	]
+	testimonital[
+		review of customers,
+
+	]
+]
+
+3)6 intentory items managed [
+	singleItem[
+		name,image,sellerName,itemsStock,updateStock btn,price,quantity,
+		update Stock(this will take on a from with item id which will update the items dynamically);
+	]
+]
+
+4) inventory updateStock button managed [
+	updateStock will take on /inventories/:id url where will get the id and update the inventory with id by form , we will implement yup and hook form for form validation check,
+	updateStock e click krle(zodi login na thka taile login page e patha url shoho and thale to manage e pathaboi,);
+	private route manage krbo,
+]
+
+5)inventory Updatebutton click page will show intentory data, and deliverd button will reduce the stocksQuantity and sold item increase, in database,[show alert after delivert click]
+
+6)inventory/:id page will have an form for restock inventory[
+	form with input box and submit button 
+	this submit will update the inventory in database ,[
+		title thakbe and 
+		input box with yup, and hook form validation proper,
+		show alert after add stocks,
+	]
+
+]
+
+7)in hompe page and all inventory page will have manage-inventories button [
+	manage inventory button will redirect to the manate-inventories page where[
+		all inventories will show table based and have edit and delete button , edit will take a update inventory route form and delete will delete with pop up,
+		(only admin can manage-inventories route run and manage);
+		(after update or delete show alert,)
+		]
+
+		on Dashboard route for admin[
+			*)manage-inventories  = (table based with delete and edit button) 
+			*)add new inventories, = 
+			*)show all users management and admin make,
+			*)add blogs of authors and admin,
+			*) 
+		]
+
+		on Dashboard route for normal user[
+			*)update profile,
+			*) 
+		]
+]
+]
+
+8)on manage-inventories page [
+	after end of inventories will have add new inventory button this will take to the (add new item,)
+	after addNewItem clicked (
+
+		take to addNewItem page [
+			where a form of addNewItems will have and image input field you can upload images with cloud also, if you know,
+			yup and hook forom apply,
+		]
+	)
+]
+
+
+9)authentication (
+	normal login and google and github and facebook login will added here,
+	after login logout will show on header with image and name,
+)
+
+10)If a user is logged in, he/she will see more options like Manage Items, Add Item, My items, Logout. Based on your website idea, you can change the name of these menu items.[
+	show confirm alert when try to delete and inventory,
+]
+
+11)fake data thakbe na, [
+	admin will be able to add new service etc,
+
+]
+
+12) implement( jwt token, 404 page, )
+
+Database desing : (
+
+	for inventories : 
+	(
+		name,email etc,
+	)
+	
+)
